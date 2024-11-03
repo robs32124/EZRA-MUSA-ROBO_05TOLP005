@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Manajemen Karyawan</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* CSS untuk sidebar dan tampilan */
+        .sidebar {
+            width: 250px;
+            background-color: #007bff;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 10px;
+            font-size: 18px;
+        }
+        .sidebar a:hover {
+            background-color: #0056b3;
+        }
+        .content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+        .card-container {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .card {
+            flex: 1;
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h4 class="text-center">Manajemen Karyawan</h4>
+        <a href="#" onclick="tampilkanKonten('dashboard')">Dashboard</a>
+        <a href="#" onclick="tampilkanKonten('dataPegawai')">Data Pegawai</a>
+        <a href="#" onclick="tampilkanKonten('absensi')">Absensi</a>
+        <a href="#" onclick="tampilkanKonten('jabatan')">Jabatan</a>
+        <a href="#" onclick="tampilkanKonten('divisi')">Divisi</a>
+    </div>
+
+    <!-- Konten Utama -->
+    <div class="content">
+        <div id="konten"></div>
+    </div>
+
+    <!-- JavaScript Kustom -->
+    <script>
+        // Data dummy untuk masing-masing bagian
+        const dataPegawai = [
+            { no: 1, nama: "John Doe", jabatan: "Manajer", divisi: "HR", email: "johndoe@example.com", telepon: "08123456789" },
+            { no: 2, nama: "Jane Smith", jabatan: "Developer", divisi: "IT", email: "janesmith@example.com", telepon: "08987654321" },
+            { no: 3, nama: "Alex Johnson", jabatan: "Analyst", divisi: "Keuangan", email: "alexj@example.com", telepon: "08567890123" },
+            { no: 4, nama: "Emily Brown", jabatan: "Designer", divisi: "Desain", email: "emilyb@example.com", telepon: "08345678901" },
+            { no: 5, nama: "Michael Davis", jabatan: "Marketing", divisi: "Pemasaran", email: "michaeld@example.com", telepon: "08234567890" },
+            { no: 6, nama: "Linda Taylor", jabatan: "QA Engineer", divisi: "IT", email: "lindat@example.com", telepon: "08198765432" },
+            { no: 7, nama: "Robert Wilson", jabatan: "HR Specialist", divisi: "HR", email: "robertw@example.com", telepon: "08912345678" },
+            { no: 8, nama: "David Clark", jabatan: "Finance Manager", divisi: "Keuangan", email: "davidc@example.com", telepon: "08765432109" },
+            { no: 9, nama: "Sarah Lewis", jabatan: "Product Manager", divisi: "Desain", email: "sarahl@example.com", telepon: "08543210987" },
+            { no: 10, nama: "James Lee", jabatan: "Content Strategist", divisi: "Pemasaran", email: "jamesl@example.com", telepon: "08213456789" }
+        ];
+
+        const dataAbsensi = [
+            { no: 1, nama: "John Doe", jabatan: "Manajer", tanggal: "01/11/2024", masuk: "08:00", pulang: "17:00", status: "Hadir" },
+            { no: 2, nama: "Jane Smith", jabatan: "Developer", tanggal: "01/11/2024", masuk: "08:15", pulang: "17:00", status: "Hadir" },
+            { no: 3, nama: "Alex Johnson", jabatan: "Analyst", tanggal: "01/11/2024", masuk: "08:20", pulang: "17:00", status: "Cuti" },
+            { no: 4, nama: "Emily Brown", jabatan: "Designer", tanggal: "01/11/2024", masuk: "08:00", pulang: "17:00", status: "Hadir" },
+            { no: 5, nama: "Michael Davis", jabatan: "Marketing", tanggal: "01/11/2024", masuk: "08:10", pulang: "17:00", status: "Hadir" },
+            { no: 6, nama: "Linda Taylor", jabatan: "QA Engineer", tanggal: "01/11/2024", masuk: "08:30", pulang: "17:00", status: "Hadir" },
+            { no: 7, nama: "Robert Wilson", jabatan: "HR Specialist", tanggal: "01/11/2024", masuk: "08:05", pulang: "17:00", status: "Hadir" },
+            { no: 8, nama: "David Clark", jabatan: "Finance Manager", tanggal: "01/11/2024", masuk: "08:00", pulang: "17:00", status: "Hadir" },
+            { no: 9, nama: "Sarah Lewis", jabatan: "Product Manager", tanggal: "01/11/2024", masuk: "08:25", pulang: "17:00", status: "Hadir" },
+            { no: 10, nama: "James Lee", jabatan: "Content Strategist", tanggal: "01/11/2024", masuk: "08:10", pulang: "17:00", status: "Cuti" }
+        ];
+
+        const dataJabatan = [
+            { no: 1, jabatan: "Manajer", deskripsi: "Mengelola operasi departemen" },
+            { no: 2, jabatan: "Developer", deskripsi: "Bertanggung jawab atas pengembangan perangkat lunak" },
+            { no: 3, jabatan: "Analyst", deskripsi: "Melakukan analisis data keuangan" },
+            { no: 4, jabatan: "Designer", deskripsi: "Merancang tampilan produk" },
+            { no: 5, jabatan: "Marketing", deskripsi: "Mengelola strategi pemasaran" },
+            { no: 6, jabatan: "QA Engineer", deskripsi: "Menjamin kualitas produk sebelum rilis" },
+            { no: 7, jabatan: "HR Specialist", deskripsi: "Mengelola kebutuhan sumber daya manusia" },
+            { no: 8, jabatan: "Finance Manager", deskripsi: "Mengelola keuangan perusahaan" },
+            { no: 9, jabatan: "Product Manager", deskripsi: "Memimpin pengembangan produk" },
+            { no: 10, jabatan: "Content Strategist", deskripsi: "Menyusun strategi konten perusahaan" }
+        ];
+
+        const dataDivisi = [
+            { no: 1, divisi: "HR", deskripsi: "Departemen Sumber Daya Manusia" },
+            { no: 2, divisi: "IT", deskripsi: "Departemen Teknologi Informasi" },
+            { no: 3, divisi: "Keuangan", deskripsi: "Departemen Keuangan" },
+            { no: 4, divisi: "Desain", deskripsi: "Departemen Desain Produk" },
+            { no: 5, divisi: "Pemasaran", deskripsi: "Departemen Pemasaran" },
+            { no: 6, divisi: "Operasional", deskripsi: "Mengelola operasi perusahaan sehari-hari" },
+            { no: 7, divisi: "Legal", deskripsi: "Mengurus aspek hukum dan kepatuhan perusahaan" },
+            { no: 8, divisi: "R&D", deskripsi: "Meneliti dan mengembangkan produk baru" },
+            { no: 9, divisi: "Customer Service", deskripsi: "Menangani keluhan dan kebutuhan pelanggan" },
+            { no: 10, divisi: "Logistik", deskripsi: "Mengelola logistik dan distribusi produk" }
+        ];
+
+        // Fungsi untuk menampilkan konten berdasarkan bagian yang diklik
+        function tampilkanKonten(bagian) {
+            const konten = document.getElementById('konten');
+            let isiKonten = '';
+
+            switch (bagian) {
+                case 'dashboard':
+                    isiKonten = `
+                        <h3>Dashboard</h3>
+                        <div class="card-container">
+                            <div class="card">
+                                <h5>Total Karyawan</h5>
+                                <p>10</p>
+                            </div>
+                            <div class="card">
+                                <h5>Hadir Hari Ini</h5>
+                                <p>8</p>
+                            </div>
+                            <div class="card">
+                                <h5>Cuti</h5>
+                                <p>2</p>
+                            </div>
+                            <div class="card">
+                                <h5>Tugas Tertunda</h5>
+                                <p>3</p>
+                            </div>
+                        </div>
+                    `;
+                    break;
+
+                case 'dataPegawai':
+                    isiKonten = `
+                        <h3>Data Pegawai</h3>
+                        <table class="table mt-4">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Jabatan</th>
+                                    <th>Divisi</th>
+                                    <th>Email</th>
+                                    <th>No. Telepon</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${dataPegawai.map(pegawai => `
+                                    <tr>
+                                        <td>${pegawai.no}</td>
+                                        <td>${pegawai.nama}</td>
+                                        <td>${pegawai.jabatan}</td>
+                                        <td>${pegawai.divisi}</td>
+                                        <td>${pegawai.email}</td>
+                                        <td>${pegawai.telepon}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+
+                case 'absensi':
+                    isiKonten = `
+                        <h3>Absensi</h3>
+                        <table class="table mt-4">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Jabatan</th>
+                                    <th>Tanggal</th>
+                                    <th>Jam Masuk</th>
+                                    <th>Jam Pulang</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${dataAbsensi.map(absen => `
+                                    <tr>
+                                        <td>${absen.no}</td>
+                                        <td>${absen.nama}</td>
+                                        <td>${absen.jabatan}</td>
+                                        <td>${absen.tanggal}</td>
+                                        <td>${absen.masuk}</td>
+                                        <td>${absen.pulang}</td>
+                                        <td>${absen.status}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+
+                case 'jabatan':
+                    isiKonten = `
+                        <h3>Jabatan</h3>
+                        <table class="table mt-4">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Jabatan</th>
+                                    <th>Deskripsi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${dataJabatan.map(jabatan => `
+                                    <tr>
+                                        <td>${jabatan.no}</td>
+                                        <td>${jabatan.jabatan}</td>
+                                        <td>${jabatan.deskripsi}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+
+                case 'divisi':
+                    isiKonten = `
+                        <h3>Divisi</h3>
+                        <table class="table mt-4">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Divisi</th>
+                                    <th>Deskripsi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${dataDivisi.map(divisi => `
+                                    <tr>
+                                        <td>${divisi.no}</td>
+                                        <td>${divisi.divisi}</td>
+                                        <td>${divisi.deskripsi}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    `;
+                    break;
+            }
+
+            konten.innerHTML = isiKonten;
+        }
+
+        // Menampilkan dashboard saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            tampilkanKonten('dashboard');
+        });
+    </script>
+</body>
+</html>
